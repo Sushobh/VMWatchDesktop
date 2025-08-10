@@ -1,4 +1,4 @@
-package org.example.project
+package com.sushobh.vmwatch
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

@@ -1,4 +1,4 @@
-package org.example.project
+package com.sushobh.vmwatch
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -13,6 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.sushobh.vmwatch.adb.FLAdbEvent
+import com.sushobh.vmwatch.adb.FLAdbWrapper
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -22,6 +24,7 @@ import kotlinproject.composeapp.generated.resources.compose_multiplatform
 @Composable
 @Preview
 fun App() {
+    val adbWrapper = FLAdbWrapper()
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
         Column(
@@ -31,19 +34,8 @@ fun App() {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
-                }
-            }
+            val state = adbWrapper.observeDevices().collectAsState(FLAdbEvent.NoDevices)
+            Text(text = state.value.toString())
         }
     }
 }

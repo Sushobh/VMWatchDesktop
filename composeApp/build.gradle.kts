@@ -20,6 +20,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation("com.android.tools.ddms:ddmlib:31.12.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -34,11 +35,11 @@ kotlin {
 
 compose.desktop {
     application {
-        mainClass = "org.example.project.MainKt"
+        mainClass = "com.sushobh.vmwatch.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "org.example.project"
+            packageName = "com.sushobh.vmwatch"
             packageVersion = "1.0.0"
         }
     }

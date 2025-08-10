@@ -1,4 +1,4 @@
-package org.example.project
+package com.sushobh.vmwatch
 
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
