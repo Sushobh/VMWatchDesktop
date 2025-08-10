@@ -111,140 +111,234 @@ private val SunsetOrange = Color(0xFFFD5E53)
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
-    tertiary = Pink80
+    tertiary = Pink80,
+    background = Color(0xFF1C1B1F),
+    surface = Color(0xFF1C1B1F),
+    onPrimary = Color(0xFF381E72),
+    onSecondary = Color(0xFF332D41),
+    onTertiary = Color(0xFF492532),
+    onBackground = Color(0xFFE6E1E5),
+    onSurface = Color(0xFFE6E1E5),
+    primaryContainer = Color(0xFF4F378B),
+    onPrimaryContainer = Color(0xFFEADDFF),
+    secondaryContainer = Color(0xFF4A4458),
+    onSecondaryContainer = Color(0xFFE8DEF8),
+    tertiaryContainer = Color(0xFF633B48),
+    onTertiaryContainer = Color(0xFFFFD8E4),
+    surfaceVariant = Color(0xFF49454F),
+    onSurfaceVariant = Color(0xFFCAC4D0)
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = Purple40,
     secondary = PurpleGrey40,
-    tertiary = Pink40
+    tertiary = Pink40,
+    background = Color(0xFFFFFBFE),
+    surface = Color(0xFFFFFBFE),
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
+    onBackground = Color(0xFF1C1B1F),
+    onSurface = Color(0xFF1C1B1F),
+    primaryContainer = Color(0xFFEADDFF),
+    onPrimaryContainer = Color(0xFF21005D),
+    secondaryContainer = Color(0xFFE8DEF8),
+    onSecondaryContainer = Color(0xFF1D192B),
+    tertiaryContainer = Color(0xFFFDD8F0),
+    onTertiaryContainer = Color(0xFF31111D),
+    surfaceVariant = Color(0xFFE7E0EC),
+    onSurfaceVariant = Color(0xFF49454F)
 )
 
 private val ForestColorScheme = lightColorScheme(
     primary = GreenPrimary,
     secondary = GreenSecondary,
-    tertiary = GreenTertiary
+    tertiary = GreenTertiary,
+    background = Color(0xFFF1F8E9),
+    surface = Color(0xFFF1F8E9),
+    onPrimary = Color.White,
+    onSecondary = Color.Black,
+    onTertiary = Color.Black,
+    onBackground = Color(0xFF1B1C18),
+    onSurface = Color(0xFF1B1C18),
+    primaryContainer = Color(0xFFC8E6C9),
+    onPrimaryContainer = Color(0xFF002105),
+    secondaryContainer = Color(0xFFD7F7C8),
+    onSecondaryContainer = Color(0xFF111F0E),
+    tertiaryContainer = Color(0xFFE1F5FE),
+    onTertiaryContainer = Color(0xFF011F29),
+    surfaceVariant = Color(0xFFE0E4D6),
+    onSurfaceVariant = Color(0xFF44483D)
 )
 
 private val OceanColorScheme = darkColorScheme(
     primary = SeaBlue,
     secondary = SkyBlue,
-    tertiary = DeepBlue
+    tertiary = DeepBlue,
+    background = Color(0xFF001F2A),
+    surface = Color(0xFF001F2A),
+    onPrimary = Color(0xFFFFFFFF),
+    onSecondary = Color(0xFF00344A),
+    onTertiary = Color(0xFFFFFFFF),
+    onBackground = Color(0xFFE0E3E3),
+    onSurface = Color(0xFFC2E8FF),
+    primaryContainer = Color(0xFF004D6D),
+    onPrimaryContainer = Color(0xFFC2E8FF),
+    secondaryContainer = Color(0xFF4C626D),
+    onSecondaryContainer = Color(0xFFD0E6F4),
+    tertiaryContainer = Color(0xFF3A429F),
+    onTertiaryContainer = Color(0xFFE0E0FF),
+    surfaceVariant = Color(0xFF40484C),
+    onSurfaceVariant = Color(0xFFC0C8CC)
 )
 
 private val SunsetColorScheme = lightColorScheme(
     primary = OrangeRed,
     secondary = DarkOrange,
-    tertiary = GoldColor
+    tertiary = GoldColor,
+    background = Color(0xFFFFF8E1),
+    surface = Color(0xFFFFF8E1),
+    onPrimary = Color.White,
+    onSecondary = Color.Black,
+    onTertiary = Color.Black,
+    onBackground = Color(0xFF201A1A),
+    onSurface = Color(0xFF201A1A),
+    primaryContainer = Color(0xFFFFDBCF),
+    onPrimaryContainer = Color(0xFF3E0400),
+    secondaryContainer = Color(0xFFFFDDB8),
+    onSecondaryContainer = Color(0xFF2D1600),
+    tertiaryContainer = Color(0xFFFFEAB6),
+    onTertiaryContainer = Color(0xFF251A00),
+    surfaceVariant = Color(0xFFF5DED8),
+    onSurfaceVariant = Color(0xFF53433F)
 )
 
 private val LavenderColorScheme = lightColorScheme(
     primary = MediumPurple,
     secondary = Lavender,
-    tertiary = DarkViolet
+    tertiary = DarkViolet,
+    background = Color(0xFFFDF7FF),
+    surface = Color(0xFFFDF7FF),
+    onPrimary = Color.White,
+    onSecondary = Color(0xFF1D1B1E),
+    onTertiary = Color.White,
+    onBackground = Color(0xFF1D1B1E),
+    onSurface = Color(0xFF1D1B1E),
+    primaryContainer = Color(0xFFEADDFF),
+    onPrimaryContainer = Color(0xFF21005D),
+    secondaryContainer = Color(0xFFF5DDFF),
+    onSecondaryContainer = Color(0xFF261430),
+    tertiaryContainer = Color(0xFFFAD7FF),
+    onTertiaryContainer = Color(0xFF3B0048),
+    surfaceVariant = Color(0xFFE7E0EC),
+    onSurfaceVariant = Color(0xFF49454F)
 )
 
 private val MintColorScheme = lightColorScheme(
     primary = MediumAquamarine,
     secondary = MintCream,
-    tertiary = SeaGreen
+    tertiary = SeaGreen,
+    background = Color(0xFFF5FFFA),
+    surface = Color(0xFFF5FFFA),
+    onPrimary = Color.Black,
+    onSecondary = Color.Black,
+    onTertiary = Color.White,
+    onBackground = Color(0xFF191C1B),
+    onSurface = Color(0xFF191C1B),
+    primaryContainer = Color(0xFF83F8C5),
+    onPrimaryContainer = Color(0xFF002115),
+    secondaryContainer = Color(0xFFBBEEDC),
+    onSecondaryContainer = Color(0xFF002017),
+    tertiaryContainer = Color(0xFFB3EED7),
+    onTertiaryContainer = Color(0xFF002017),
+    surfaceVariant = Color(0xFFDBE5DF),
+    onSurfaceVariant = Color(0xFF3F4945)
 )
 
 private val RubyColorScheme = darkColorScheme(
     primary = Ruby,
     secondary = Crimson,
-    tertiary = IndianRed
+    tertiary = IndianRed,
+    background = Color(0xFF2D000D),
+    surface = Color(0xFF2D000D),
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.Black,
+    onBackground = Color(0xFFFFD9DD),
+    onSurface = Color(0xFFFFD9DD),
+    primaryContainer = Color(0xFF920031),
+    onPrimaryContainer = Color(0xFFFFD9DD),
+    secondaryContainer = Color(0xFF7A2B34),
+    onSecondaryContainer = Color(0xFFFFD9DD),
+    tertiaryContainer = Color(0xFF794044),
+    onTertiaryContainer = Color(0xFFFDD9D9),
+    surfaceVariant = Color(0xFF534345),
+    onSurfaceVariant = Color(0xFFD8C2C4)
 )
 
 private val SapphireColorScheme = darkColorScheme(
     primary = Sapphire,
     secondary = RoyalBlue,
-    tertiary = DodgerBlue
+    tertiary = DodgerBlue,
+    background = Color(0xFF001849),
+    surface = Color(0xFF001849),
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.Black,
+    onBackground = Color(0xFFDCE1FF),
+    onSurface = Color(0xFFDCE1FF),
+    primaryContainer = Color(0xFF003DA5),
+    onPrimaryContainer = Color(0xFFD9E2FF),
+    secondaryContainer = Color(0xFF2344C1),
+    onSecondaryContainer = Color(0xFFDEE1FF),
+    tertiaryContainer = Color(0xFF00497A),
+    onTertiaryContainer = Color(0xFFCBE6FF),
+    surfaceVariant = Color(0xFF44464F),
+    onSurfaceVariant = Color(0xFFC5C6D0)
 )
 
 private val EmeraldColorScheme = lightColorScheme(
     primary = Emerald,
     secondary = LimeGreen,
-    tertiary = ForestGreen
+    tertiary = ForestGreen,
+    background = Color(0xFFF7FFF5),
+    surface = Color(0xFFF7FFF5),
+    onPrimary = Color.Black,
+    onSecondary = Color.Black,
+    onTertiary = Color.White,
+    onBackground = Color(0xFF1A1C19),
+    onSurface = Color(0xFF1A1C19),
+    primaryContainer = Color(0xFF74F992),
+    onPrimaryContainer = Color(0xFF00210A),
+    secondaryContainer = Color(0xFF9CFB83),
+    onSecondaryContainer = Color(0xFF002203),
+    tertiaryContainer = Color(0xFFA0D0A5),
+    onTertiaryContainer = Color(0xFF00210B),
+    surfaceVariant = Color(0xFFDDE5D9),
+    onSurfaceVariant = Color(0xFF414941)
 )
 
 private val AmethystColorScheme = darkColorScheme(
     primary = Amethyst,
     secondary = Purple,
-    tertiary = DarkMagenta
+    tertiary = DarkMagenta,
+    background = Color(0xFF281832),
+    surface = Color(0xFF281832),
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
+    onBackground = Color(0xFFEBDDED),
+    onSurface = Color(0xFFEBDDED),
+    primaryContainer = Color(0xFF503A60),
+    onPrimaryContainer = Color(0xFFF4D9FF),
+    secondaryContainer = Color(0xFF4A3753),
+    onSecondaryContainer = Color(0xFFF4D9FF),
+    tertiaryContainer = Color(0xFF6E2A70),
+    onTertiaryContainer = Color(0xFFFFD6FA),
+    surfaceVariant = Color(0xFF4D4450),
 )
 
-private val GoldColorScheme = lightColorScheme(
-    primary = Gold,
-    secondary = Goldenrod,
-    tertiary = DarkGoldenrod
-)
 
-private val SilverColorScheme = lightColorScheme(
-    primary = Silver,
-    secondary = LightGray,
-    tertiary = DarkGray
-)
-
-private val BronzeColorScheme = lightColorScheme(
-    primary = Bronze,
-    secondary = SaddleBrown,
-    tertiary = Sienna
-)
-
-private val CyberpunkColorScheme = darkColorScheme(
-    primary = CyberPink,
-    secondary = ElectricBlue,
-    tertiary = NeonGreen
-)
-
-private val SteampunkColorScheme = lightColorScheme(
-    primary = Copper,
-    secondary = Brass,
-    tertiary = Brown
-)
-
-private val VampireColorScheme = darkColorScheme(
-    primary = BloodRed,
-    secondary = MidnightBlack,
-    tertiary = DarkRed
-)
-
-private val ZombieColorScheme = darkColorScheme(
-    primary = ZombieGreen,
-    secondary = SwampGreen,
-    tertiary = PaleFlesh
-)
-
-private val CottonCandyColorScheme = lightColorScheme(
-    primary = CottonCandyPink,
-    secondary = CottonCandyBlue,
-    tertiary = LightPink
-)
-
-private val MochaColorScheme = darkColorScheme(
-    primary = Mocha,
-    secondary = Coffee,
-    tertiary = Cream
-)
-
-private val ObsidianColorScheme = darkColorScheme(
-    primary = Obsidian,
-    secondary = Charcoal,
-    tertiary = SlateGray
-)
-
-private val ArcticColorScheme = lightColorScheme(
-    primary = ArcticBlue,
-    secondary = IceBlue,
-    tertiary = Snow
-)
-
-private val DesertColorScheme = lightColorScheme(
-    primary = Sand,
-    secondary = CactusGreen,
-    tertiary = SunsetOrange
-)
 
 enum class AppTheme(val displayName: String, val colorScheme: ColorScheme) {
     DEFAULT_LIGHT("Default Light", LightColorScheme),
@@ -258,16 +352,4 @@ enum class AppTheme(val displayName: String, val colorScheme: ColorScheme) {
     SAPPHIRE("Sapphire", SapphireColorScheme),
     EMERALD("Emerald", EmeraldColorScheme),
     AMETHYST("Amethyst", AmethystColorScheme),
-    GOLD("Gold", GoldColorScheme),
-    SILVER("Silver", SilverColorScheme),
-    BRONZE("Bronze", BronzeColorScheme),
-    CYBERPUNK("Cyberpunk", CyberpunkColorScheme),
-    STEAMPUNK("Steampunk", SteampunkColorScheme),
-    VAMPIRE("Vampire", VampireColorScheme),
-    ZOMBIE("Zombie", ZombieColorScheme),
-    COTTON_CANDY("Cotton Candy", CottonCandyColorScheme),
-    MOCHA("Mocha", MochaColorScheme),
-    OBSIDIAN("Obsidian", ObsidianColorScheme),
-    ARCTIC("Arctic", ArcticColorScheme),
-    DESERT("Desert", DesertColorScheme)
 }
