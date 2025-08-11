@@ -35,7 +35,7 @@ class DeviceViewModel(
                 .collect { event ->
                     when (event) {
                         is FLAdbEvent.DevicesConnected -> {
-                            val deviceSerials = event.devices.map { it.serialNumber }
+                            val deviceSerials = event.devices.map { it.serial }
                             _devices.value = deviceSerials
                             if (_selectedDevice.value == null || _selectedDevice.value !in deviceSerials) {
                                 _selectedDevice.value = deviceSerials.firstOrNull()

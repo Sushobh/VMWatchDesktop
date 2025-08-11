@@ -11,10 +11,12 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 sealed class FLAdbEvent {
-    data class DevicesConnected(val devices: List<IDevice>) : FLAdbEvent()
+    data class DevicesConnected(val devices: List<FLAdbDevice>) : FLAdbEvent()
     object NoDevices : FLAdbEvent()
     data class Error(val message: String) : FLAdbEvent()
 }
+
+
 
 class FLAdbWrapper(private val adbPath: String = "adb") {
 
@@ -68,7 +70,7 @@ class FLAdbWrapper(private val adbPath: String = "adb") {
 
     private fun getCurrentDevicesEvent(): FLAdbEvent {
         val devices = bridge?.devices?.toList().orEmpty()
-        return if (devices.isEmpty()) FLAdbEvent.NoDevices else FLAdbEvent.DevicesConnected(devices)
+        return if (devices.isEmpty()) FLAdbEvent.NoDevices else FLAdbEvent.DevicesConnected(devices.map { FLAdbDevice(it) })
     }
 
     suspend fun forwardPort(
