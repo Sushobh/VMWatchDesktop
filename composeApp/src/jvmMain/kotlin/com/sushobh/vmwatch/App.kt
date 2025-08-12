@@ -23,7 +23,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun App() {
     val configApi = remember { ConfigApi() }
-    val flAdbWrapper = remember { FLAdbWrapper() }
+    val flAdbWrapper = remember { FLAdbWrapper(configApi = configApi) }
     val deviceViewModel = remember { DeviceViewModel(flAdbWrapper) }
     val vmListViewModel = remember { VmListViewModel() }
     val themeViewModel = remember { ThemeViewModel() }

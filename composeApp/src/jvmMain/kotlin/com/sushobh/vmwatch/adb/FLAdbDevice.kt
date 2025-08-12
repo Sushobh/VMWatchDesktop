@@ -3,6 +3,11 @@ package com.sushobh.vmwatch.adb
 import com.android.ddmlib.AdbCommandRejectedException
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.TimeoutException
+import com.sushobh.vmwatch.config.ConfigApi
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -17,39 +22,13 @@ class FLAdbDevice(private val iDevice: IDevice) {
         get() = iDevice.isEmulator
     val isOnline: Boolean
         get() = iDevice.isOnline
+    private var devicePort : Int? = null
+    private var computerPort : Int? = null
 
-
-    suspend fun forwardPort(
-        device: IDevice,
-        local: Int,
-        remote: Int
-    ): Result<Unit> {
-        return try {
-            withContext(Dispatchers.IO) {
-                device.createForward(local, remote)
-            }
-            Result.success(Unit)
-        } catch (e: TimeoutException) {
-            Result.failure(IOException("Port forward timeout: ${e.message}", e))
-        } catch (e: AdbCommandRejectedException) {
-            Result.failure(IOException("Port forward rejected: ${e.message}", e))
-        } catch (e: IOException) {
-            Result.failure(e)
-        }
+    sealed class FLAdbConnectionState {
+        object NotConnected : FLAdbConnectionState()
+        data class Connected(val port: Int) : FLAdbConnectionState()
+        data class Error(val message: String) : FLAdbConnectionState()
     }
 
-    suspend fun removePortForward(forwardedPort : Int): Result<Unit> {
-        return try {
-            withContext(Dispatchers.IO) {
-                iDevice.removeForward(forwardedPort)
-            }
-            Result.success(Unit)
-        } catch (e: TimeoutException) {
-            Result.failure(IOException("Remove port forward timeout: ${e.message}", e))
-        } catch (e: AdbCommandRejectedException) {
-            Result.failure(IOException("Remove port forward rejected: ${e.message}", e))
-        } catch (e: IOException) {
-            Result.failure(e)
-        }
-    }
 }

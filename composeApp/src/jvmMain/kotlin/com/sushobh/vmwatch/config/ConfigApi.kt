@@ -17,4 +17,10 @@ class ConfigApi {
         }
     }
 
+    fun getDevicePort() : Int {
+        return 56440
+    }
+
+    fun allowedPorts() = intArrayOf(56441,56442,56443,56444,56445)
+
 }

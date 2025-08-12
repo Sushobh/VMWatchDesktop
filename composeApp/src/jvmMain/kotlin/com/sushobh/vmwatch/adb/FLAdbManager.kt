@@ -4,6 +4,12 @@ import com.android.ddmlib.AndroidDebugBridge
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.TimeoutException
 import com.android.ddmlib.AdbCommandRejectedException
+import com.sushobh.vmwatch.adb.FLAdbDevice.FLAdbConnectionState
+import com.sushobh.vmwatch.config.ConfigApi
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
@@ -18,7 +24,7 @@ sealed class FLAdbEvent {
 
 
 
-class FLAdbWrapper(private val adbPath: String = "adb") {
+class FLAdbWrapper(private val adbPath: String = "adb",private val configApi: ConfigApi) {
 
     private var bridge: AndroidDebugBridge? = null
 
@@ -73,6 +79,31 @@ class FLAdbWrapper(private val adbPath: String = "adb") {
         return if (devices.isEmpty()) FLAdbEvent.NoDevices else FLAdbEvent.DevicesConnected(devices.map { FLAdbDevice(it) })
     }
 
+    suspend fun isConnected() : FLAdbConnectionState {
+        val validPorts = configApi.allowedPorts()
+        for (port in validPorts) {
+            if (pingPort(port)) {
+                return FLAdbConnectionState.Connected(port)
+            }
+        }
+        return FLAdbConnectionState.NotConnected
+    }
+
+    suspend fun connect(flAdbDevice: FLAdbDevice) : FLAdbConnectionState {
+        val validPorts = configApi.allowedPorts()
+        for(port in validPorts){
+            if(!pingPort(port)){
+                try {
+                    //TODO create forward
+                    return FLAdbConnectionState.Connected(port)
+                } catch (e: Exception) {
+                    return FLAdbConnectionState.Error("Failed to forward port: ${e.message}")
+                }
+            }
+        }
+        return FLAdbConnectionState.Error("No available ports to connect")
+    }
+
     suspend fun forwardPort(
         device: IDevice,
         local: Int,
@@ -89,6 +120,31 @@ class FLAdbWrapper(private val adbPath: String = "adb") {
             Result.failure(IOException("Port forward rejected: ${e.message}", e))
         } catch (e: IOException) {
             Result.failure(e)
+        }
+    }
+
+    suspend fun removePortForward(forwardedPort : Int,device: FLAdbDevice): Result<Unit> {
+        return try {
+            //TODO remove forward
+            Result.success(Unit)
+        } catch (e: TimeoutException) {
+            Result.failure(IOException("Remove port forward timeout: ${e.message}", e))
+        } catch (e: AdbCommandRejectedException) {
+            Result.failure(IOException("Remove port forward rejected: ${e.message}", e))
+        } catch (e: IOException) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun pingPort(port : Int): Boolean {
+        val client = HttpClient(CIO)
+        return try {
+            val response: HttpResponse = client.get("http://localhost:${port}")
+            client.close()
+            response.status.value in 200..299  // success if status is 2xx
+        } catch (e: Exception) {
+            client.close()
+            false
         }
     }
 }
