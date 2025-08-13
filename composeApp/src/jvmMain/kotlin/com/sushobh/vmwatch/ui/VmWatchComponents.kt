@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.sushobh.vmwatch.ui.polling.PollingViewModel
 import com.sushobh.vmwatch.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -198,21 +199,13 @@ fun ViewModelItem(name: String, isSelected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-fun ViewModelDetails(selectedViewModel: String?, modifier: Modifier = Modifier) {
+fun ViewModelDetails(viewModel: PollingViewModel, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxHeight()
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
-        if (selectedViewModel != null) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Details for", style = MaterialTheme.typography.titleLarge)
-                Text(selectedViewModel, style = MaterialTheme.typography.headlineMedium)
-                // You can add more detailed content here later
-            }
-        } else {
-            Text("Select a ViewModel from the list to see details.", style = MaterialTheme.typography.bodyLarge)
-        }
+        VmDetailsView(viewModel)
     }
 }

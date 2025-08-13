@@ -14,8 +14,10 @@ import androidx.compose.ui.Modifier
 import com.sushobh.vmwatch.adb.FLAdbWrapper
 import com.sushobh.vmwatch.config.ConfigApi
 import com.sushobh.vmwatch.ui.AppBar
+import com.sushobh.vmwatch.ui.VMWatchStateApiImpl
 import com.sushobh.vmwatch.ui.ViewModelDetails
 import com.sushobh.vmwatch.ui.ViewModelList
+import com.sushobh.vmwatch.ui.polling.PollingViewModel
 import com.sushobh.vmwatch.ui.theme.ThemeViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -27,6 +29,8 @@ fun App() {
     val deviceViewModel = remember { DeviceViewModel(flAdbWrapper) }
     val vmListViewModel = remember { VmListViewModel() }
     val themeViewModel = remember { ThemeViewModel() }
+    val vmWatchStateApi = remember { VMWatchStateApiImpl() }
+    val pollingViewModel = remember { PollingViewModel(configApi, vmWatchStateApi) }
 
     val devices by deviceViewModel.devices.collectAsState()
     val selectedDevice by deviceViewModel.selectedDevice.collectAsState()
@@ -68,8 +72,7 @@ fun App() {
 
                 VerticalDivider()
 
-                ViewModelDetails(
-                    selectedViewModel = selectedViewModel,
+                ViewModelDetails(viewModel = pollingViewModel,
                     modifier = Modifier.weight(3f)
                 )
             }
