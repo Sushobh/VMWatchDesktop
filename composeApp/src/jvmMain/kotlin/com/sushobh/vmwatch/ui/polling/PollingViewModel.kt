@@ -27,7 +27,7 @@ class PollingViewModel(
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
     private val _vmConnectionState = MutableStateFlow<PollingVMConnectionState>(PollingVMConnectionState.NotConnected)
-
+    val connectionState = _vmConnectionState.asStateFlow()
 
 
     init {

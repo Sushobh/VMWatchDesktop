@@ -17,6 +17,7 @@ import com.sushobh.vmwatch.ui.AppBar
 import com.sushobh.vmwatch.ui.VMWatchStateApiImpl
 import com.sushobh.vmwatch.ui.ViewModelDetails
 import com.sushobh.vmwatch.ui.ViewModelList
+import com.sushobh.vmwatch.ui.polling.FLPollingDetailsView
 import com.sushobh.vmwatch.ui.polling.PollingViewModel
 import com.sushobh.vmwatch.ui.theme.ThemeViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -64,17 +65,18 @@ fun App() {
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                ViewModelList(
-                    viewModels = viewModels,
-                    selectedViewModel = selectedViewModel,
-                    onViewModelSelected = { vmName -> vmListViewModel.onViewModelSelected(vmName) }
-                )
-
-                VerticalDivider()
-
-                ViewModelDetails(viewModel = pollingViewModel,
-                    modifier = Modifier.weight(3f)
-                )
+//                ViewModelList(
+//                    viewModels = viewModels,
+//                    selectedViewModel = selectedViewModel,
+//                    onViewModelSelected = { vmName -> vmListViewModel.onViewModelSelected(vmName) }
+//                )
+//
+//                VerticalDivider()
+//
+//                ViewModelDetails(viewModel = pollingViewModel,
+//                    modifier = Modifier.weight(3f)
+//                )
+                FLPollingDetailsView(pollingViewModel)
             }
         }
     }

@@ -29,7 +29,7 @@ class ConfigApi {
 
     fun allowedPorts() = intArrayOf(56441,56442,56443,56444,56445)
 
-    fun getApiHost() = "http://localhost:8080"
+    fun getApiHost() = "http://localhost:56441"
 
     fun getPollingInterval() = 5000L // 5 seconds
 

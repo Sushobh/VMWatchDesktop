@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    kotlin("plugin.serialization") version "2.2.0"
 }
 
 kotlin {
@@ -26,6 +27,7 @@ kotlin {
             implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
             implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
             implementation("app.cash.molecule:molecule-runtime:2.1.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
         }
         commonTest.dependencies {

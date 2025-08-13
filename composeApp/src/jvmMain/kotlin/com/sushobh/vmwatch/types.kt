@@ -2,6 +2,7 @@ package com.sushobh.vmwatch
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.serialization.Serializable
 import java.lang.reflect.Field
 
 
@@ -49,6 +50,7 @@ interface FragLensApi {
     fun parseProperties(flViewModelId: FLViewModelId) : FLPropertyOwner?
 }
 
+@Serializable
 data class FLViewModelId(val code : Int,val name : String)
 
 data class FLParserApiResponse(val isSuccess : Boolean = false,val items : List<FLProperty> = emptyList())
