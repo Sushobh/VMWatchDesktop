@@ -52,8 +52,8 @@ fun AppBar(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.padding(end = 16.dp)
             ) {
-                ThemeSelector(availableThemes, selectedTheme, onThemeSelected)
-                DeviceSelector(devices, selectedDevice, onDeviceSelected)
+                  ThemeSelector(availableThemes, selectedTheme, onThemeSelected)
+                 //DeviceSelector(devices, selectedDevice, onDeviceSelected)
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

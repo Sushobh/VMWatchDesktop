@@ -26,11 +26,9 @@ class PollingViewModel(
 
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
-    private val _vmListState = MutableStateFlow<PollingVMVmListState>(PollingVMVmListState.Loading)
-    val vmListState: StateFlow<PollingVMVmListState> = _vmListState.asStateFlow()
+    private val _vmConnectionState = MutableStateFlow<PollingVMConnectionState>(PollingVMConnectionState.NotConnected)
 
-    private val _vmDetailsState = MutableStateFlow<PollingVMVmDetailsState?>(null)
-    val vmDetailsState: StateFlow<PollingVMVmDetailsState?> = _vmDetailsState.asStateFlow()
+
 
     init {
         startPolling()
@@ -43,9 +41,9 @@ class PollingViewModel(
                     try {
                         val response: List<FLViewModelId> =
                             client.get("${configApi.getApiHost()}/getallviewmodels").body()
-                        _vmListState.value = PollingVMVmListState.Success(response)
+                        _vmConnectionState.value = PollingVMConnectionState.Connected
                     } catch (e: Exception) {
-                        _vmListState.value = PollingVMVmListState.Error(e.message ?: "Unknown error")
+                        _vmConnectionState.value = PollingVMConnectionState.NotConnected
                     }
                 }
                 delay(configApi.getPollingInterval())
@@ -53,24 +51,22 @@ class PollingViewModel(
         }
     }
 
-    fun onViewModelClicked(viewModelId: FLViewModelId) {
-        viewModelScope.launch {
-            _vmDetailsState.value = PollingVMVmDetailsState.Loading
-            try {
-                val response: FLPropertyOwner = client.post("${configApi.getApiHost()}/getpropsforviewmodel") {
-                    contentType(ContentType.Application.Json)
-                    setBody(viewModelId)
-                }.body()
-                _vmDetailsState.value = PollingVMVmDetailsState.Success(response)
-            } catch (e: Exception) {
-                _vmDetailsState.value = PollingVMVmDetailsState.Error(e.message ?: "Unknown error")
-            }
-        }
-    }
+//    fun onViewModelClicked(viewModelId: FLViewModelId) {
+//        viewModelScope.launch {
+//            _vmDetailsState.value = PollingVMVmDetailsState.Loading
+//            try {
+//                val response: FLPropertyOwner = client.post("${configApi.getApiHost()}/getpropsforviewmodel") {
+//                    contentType(ContentType.Application.Json)
+//                    setBody(viewModelId)
+//                }.body()
+//                _vmDetailsState.value = PollingVMVmDetailsState.Success(response)
+//            } catch (e: Exception) {
+//                _vmDetailsState.value = PollingVMVmDetailsState.Error(e.message ?: "Unknown error")
+//            }
+//        }
+//    }
 
     fun onShowFullContentClicked(property: FLProperty) {
-        // TODO: Implement a better way to show the full content, like a dialog.
-        println("Full content for ${property.name}:")
-        println(property.value)
+
     }
 }
