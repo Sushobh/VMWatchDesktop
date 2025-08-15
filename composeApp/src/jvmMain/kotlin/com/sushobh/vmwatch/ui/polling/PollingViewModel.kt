@@ -1,5 +1,6 @@
 package com.sushobh.vmwatch.ui.polling
 
+import com.sushobh.vmwatch.FLParserApiResponse
 import com.sushobh.vmwatch.FLProperty
 import com.sushobh.vmwatch.FLPropertyOwner
 import com.sushobh.vmwatch.FLViewModelId
@@ -28,6 +29,9 @@ class PollingViewModel(
 
     private val _vmConnectionState = MutableStateFlow<PollingVMConnectionState>(PollingVMConnectionState.NotConnected)
     val connectionState = _vmConnectionState.asStateFlow()
+    private val _vmMainState = MutableStateFlow(PollingVMMainState(PollingVMVmListState.Loading,
+        PollingVMVmDetailsState.Waiting))
+    val vmMainState = _vmMainState
 
 
     init {
@@ -42,6 +46,7 @@ class PollingViewModel(
                         val response: List<FLViewModelId> =
                             client.get("${configApi.getApiHost()}/getallviewmodels").body()
                         _vmConnectionState.value = PollingVMConnectionState.Connected
+                        _vmMainState.value = _vmMainState.value.copy(listState = PollingVMVmListState.Success(response))
                     } catch (e: Exception) {
                         _vmConnectionState.value = PollingVMConnectionState.NotConnected
                     }
@@ -51,22 +56,25 @@ class PollingViewModel(
         }
     }
 
-//    fun onViewModelClicked(viewModelId: FLViewModelId) {
-//        viewModelScope.launch {
-//            _vmDetailsState.value = PollingVMVmDetailsState.Loading
-//            try {
-//                val response: FLPropertyOwner = client.post("${configApi.getApiHost()}/getpropsforviewmodel") {
-//                    contentType(ContentType.Application.Json)
-//                    setBody(viewModelId)
-//                }.body()
-//                _vmDetailsState.value = PollingVMVmDetailsState.Success(response)
-//            } catch (e: Exception) {
-//                _vmDetailsState.value = PollingVMVmDetailsState.Error(e.message ?: "Unknown error")
-//            }
-//        }
-//    }
-
-    fun onShowFullContentClicked(property: FLProperty) {
-
+    fun onViewModelClicked(viewModelId: FLViewModelId) {
+        viewModelScope.launch {
+            _vmMainState.value = _vmMainState.value.copy(propertyState = PollingVMVmDetailsState.Loading)
+            try {
+                val response: FLParserApiResponse = client.post("${configApi.getApiHost()}/getpropsforviewmodel") {
+                    contentType(ContentType.Application.Json)
+                    setBody(viewModelId)
+                }.body()
+                if(response.isSuccess){
+                    _vmMainState.value = _vmMainState.value.copy(propertyState = PollingVMVmDetailsState.Success(response))
+                }
+                else {
+                    _vmMainState.value = _vmMainState.value.copy(propertyState = PollingVMVmDetailsState.Error("Could not load properties"))
+                }
+            } catch (e: Exception) {
+                _vmMainState.value = _vmMainState.value.copy(propertyState = PollingVMVmDetailsState.Error("Could not load properties"))
+            }
+        }
     }
+
+
 }

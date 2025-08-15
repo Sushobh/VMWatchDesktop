@@ -168,44 +168,6 @@ private fun DeviceSelector(
     }
 }
 
-@Composable
-fun RowScope.ViewModelList(
-    viewModels: List<String>,
-    selectedViewModel: String?,
-    onViewModelSelected: (String) -> Unit
-) {
-    LazyColumn(modifier = Modifier.weight(1f).background(MaterialTheme.colorScheme.surface)) {
-        items(viewModels) { vmName ->
-            ViewModelItem(
-                name = vmName,
-                isSelected = vmName == selectedViewModel,
-                onClick = { onViewModelSelected(vmName) }
-            )
-        }
-    }
-}
 
-@Composable
-fun ViewModelItem(name: String, isSelected: Boolean, onClick: () -> Unit) {
-    Text(
-        text = name,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
-    )
-}
 
-@Composable
-fun ViewModelDetails(viewModel: PollingViewModel, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxHeight()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        VmDetailsView(viewModel)
-    }
-}
+

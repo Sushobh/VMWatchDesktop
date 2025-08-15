@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 import java.lang.reflect.Field
 
-
+@Serializable
 data class FLProperty(
     val name: String,
     val type: String,
@@ -18,11 +18,11 @@ data class FLProperty(
     }
 }
 
+@Serializable
 data class FLPropertyOwner(
     val name: String,
     val type: String,
-    val properties: List<FLProperty>,
-    val ownerObject : Any? = null // This can be used to store the actual owner object if needed
+    val properties: List<FLProperty>
 ) {
     override fun toString(): String {
         return "PropertyOwner(name='$name', type='$type', properties=$properties)"
@@ -53,4 +53,5 @@ interface FragLensApi {
 @Serializable
 data class FLViewModelId(val code : Int,val name : String)
 
-data class FLParserApiResponse(val isSuccess : Boolean = false,val items : List<FLProperty> = emptyList())
+@Serializable
+data class FLParserApiResponse(val isSuccess : Boolean = false,val items : List<FLProperty> = emptyList(),val viewmodelName : String)

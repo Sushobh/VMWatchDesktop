@@ -15,8 +15,6 @@ import com.sushobh.vmwatch.adb.FLAdbWrapper
 import com.sushobh.vmwatch.config.ConfigApi
 import com.sushobh.vmwatch.ui.AppBar
 import com.sushobh.vmwatch.ui.VMWatchStateApiImpl
-import com.sushobh.vmwatch.ui.ViewModelDetails
-import com.sushobh.vmwatch.ui.ViewModelList
 import com.sushobh.vmwatch.ui.polling.FLPollingDetailsView
 import com.sushobh.vmwatch.ui.polling.PollingViewModel
 import com.sushobh.vmwatch.ui.theme.ThemeViewModel

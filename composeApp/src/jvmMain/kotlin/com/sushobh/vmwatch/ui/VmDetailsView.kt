@@ -19,40 +19,7 @@ import com.sushobh.vmwatch.ui.polling.PollingViewModel
 
 const val MAX_DISPLAYABLE_LENGTH = 100
 
-@Composable
-fun VmDetailsView(viewModel: PollingViewModel) {
-    val dummyProperties = (1..100).map { i ->
-        val isLong = i % 5 == 0
-        val isNull = i % 10 == 0
-        FLProperty(
-            name = "property$i",
-            type = "Type$i",
-            value = when {
-                isNull -> null
-                isLong -> "long string value ".repeat(20)
-                else -> "value $i"
-            }
-        )
-    }
 
-    // Aligning with ViewModelList by using MaterialTheme.colorScheme.surface
-    Card(
-        modifier = Modifier.fillMaxSize(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(dummyProperties) { property ->
-                PropertyRow(property, onClick = {
-                    viewModel.onShowFullContentClicked(property)
-                })
-                Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
-            }
-        }
-    }
-}
 
 @Composable
 fun PropertyRow(property: FLProperty, onClick: () -> Unit) {
