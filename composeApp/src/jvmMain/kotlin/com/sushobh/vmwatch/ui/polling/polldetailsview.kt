@@ -125,7 +125,7 @@ fun ViewModelList(listState: PollingVMVmListState,viewModel: PollingViewModel) {
                         ViewModelItem(
                             name = vm.name,
                             onClick = { viewModel.onViewModelClicked(vm) },
-                            isSelected = false
+                            isSelected = vm == listState.selectedId
                         )
                     }
                 }

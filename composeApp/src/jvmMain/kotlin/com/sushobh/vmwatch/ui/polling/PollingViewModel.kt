@@ -65,7 +65,10 @@ class PollingViewModel(
                     setBody(viewModelId)
                 }.body()
                 if(response.isSuccess){
-                    _vmMainState.value = _vmMainState.value.copy(propertyState = PollingVMVmDetailsState.Success(response))
+                    val listState = vmMainState.value.listState
+
+                    _vmMainState.value = _vmMainState.value.copy(propertyState = PollingVMVmDetailsState.Success(response), listState =
+                        (listState as PollingVMVmListState.Success).copy(selectedId = viewModelId))
                 }
                 else {
                     _vmMainState.value = _vmMainState.value.copy(propertyState = PollingVMVmDetailsState.Error("Could not load properties"))

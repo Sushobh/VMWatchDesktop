@@ -11,7 +11,8 @@ data class FLProperty(
     val type: String,
     val value: String? = null,
     val isMutable: Boolean = false,
-    val fieldValue : String? = null
+    val fieldValue : String? = null,
+    val isClickToShow : Boolean = false
 ) {
     override fun toString(): String {
         return "Property(name='$name', type='$type', value=$value, isMutable=$isMutable)"

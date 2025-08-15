@@ -31,7 +31,7 @@ class ConfigApi {
 
     fun getApiHost() = "http://localhost:56441"
 
-    fun getPollingInterval() = 5000L // 5 seconds
+    fun getPollingInterval() = 2000L // 5 seconds
 
     val httpClient = HttpClient(CIO) {
         install(ContentNegotiation) {
