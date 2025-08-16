@@ -12,7 +12,8 @@ data class FLProperty(
     val value: String? = null,
     val isMutable: Boolean = false,
     val fieldValue : String? = null,
-    val isClickToShow : Boolean = false
+    val isClickToShow : Boolean = false,
+    val refPath : FLReferencePath
 ) {
     override fun toString(): String {
         return "Property(name='$name', type='$type', value=$value, isMutable=$isMutable)"
@@ -29,6 +30,9 @@ data class FLPropertyOwner(
         return "PropertyOwner(name='$name', type='$type', properties=$properties)"
     }
 }
+
+@Serializable
+data class FLSerializeFieldResponse(val isSuccess : Boolean = false,val value : FLProperty? = null)
 
 data class FLReflectionProperty(private val field : Field,private val owner : Any)
 
@@ -56,3 +60,14 @@ data class FLViewModelId(val code : Int,val name : String)
 
 @Serializable
 data class FLParserApiResponse(val isSuccess : Boolean = false,val items : List<FLProperty> = emptyList(),val viewmodelName : String)
+
+@Serializable
+data class FLReferencePath(val viewModelCode : Int,val fieldCode : Int) {
+
+    operator fun get(index : Int) : Int {
+        if(index == 0) return viewModelCode
+        if(index == 1) return fieldCode
+        return -1
+    }
+
+}

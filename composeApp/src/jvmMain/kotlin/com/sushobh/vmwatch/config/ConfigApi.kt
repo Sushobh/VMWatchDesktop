@@ -14,6 +14,8 @@ class ConfigApi {
     }
 
     fun getAppName(): String = "FragLens Desktop"
+
+
     fun getPlatForm(): FLPlatform {
         val os = System.getProperty("os.name").lowercase()
         return when {
@@ -23,10 +25,7 @@ class ConfigApi {
         }
     }
 
-    fun getDevicePort() : Int {
-        return 56440
-    }
-
+    
     fun allowedPorts() = intArrayOf(56441,56442,56443,56444,56445)
 
     fun getApiHost() = "http://localhost:56441"

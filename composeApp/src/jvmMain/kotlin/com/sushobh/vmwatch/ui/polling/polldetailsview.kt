@@ -24,15 +24,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.sushobh.vmwatch.FLProperty
-import com.sushobh.vmwatch.FLPropertyOwner
-import com.sushobh.vmwatch.ui.PropertyRow
 import kotlinx.coroutines.flow.map
 
 @Composable
 fun FLPollingDetailsView(pollingViewModel: PollingViewModel) {
     val connectionState = pollingViewModel.connectionState.collectAsState()
     val vmListState = pollingViewModel.vmMainState.map { it.listState }.collectAsState(PollingVMVmListState.Loading)
-    val vmDetailsState = pollingViewModel.vmMainState.map { it.propertyState }.collectAsState(PollingVMVmDetailsState.Loading)
+    val vmDetailsState = pollingViewModel.vmMainState.map { it.detailsState }.collectAsState(PollingVMVmDetailsState.Loading)
     Column(modifier = Modifier.fillMaxSize()) {
         when (connectionState.value) {
             PollingVMConnectionState.Connected -> {
@@ -92,7 +90,7 @@ fun ViewModelDetails(state : PollingVMVmDetailsState,viewModel: PollingViewModel
 
                         items(state.vmDetails.items) { property ->
                             PropertyRow(property, onClick = {
-
+                                 viewModel.onMoreDetailsClickedForProp(it)
                             })
                             Divider(color = androidx.compose.material3.MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
                         }
@@ -147,4 +145,36 @@ fun ViewModelItem(name: String, isSelected: Boolean, onClick: () -> Unit) {
             .padding(horizontal = 16.dp, vertical = 12.dp),
         color = if (isSelected) androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer else androidx.compose.material3.MaterialTheme.colorScheme.onSurface
     )
+}
+
+const val MAX_DISPLAYABLE_LENGTH = 100
+
+
+
+@Composable
+fun PropertyRow(property: FLProperty, onClick: (property : FLProperty) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp).clickable(true) {
+                onClick(property)
+            },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Using onSurface for primary text, consistent with ViewModelItem
+        Text(
+            text = property.name,
+            modifier = Modifier.weight(1f),
+            style = androidx.compose.material3.MaterialTheme.typography.titleSmall,
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+        )
+
+        Text(
+            text = property.value ?: "null",
+            modifier = Modifier.weight(2f),
+            style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 }
