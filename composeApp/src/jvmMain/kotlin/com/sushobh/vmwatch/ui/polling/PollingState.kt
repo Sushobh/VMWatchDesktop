@@ -24,7 +24,7 @@ sealed class PollingVMVmDetailsState {
 
 sealed class PollingVMFieldValueState {
     data object Loading : PollingVMFieldValueState()
-    data class Success(val vmDetails: FLProperty) : PollingVMFieldValueState()
+    data class Success(val fieldDetails: FLProperty) : PollingVMFieldValueState()
     data class Error(val message: String) : PollingVMFieldValueState()
     data object Waiting : PollingVMFieldValueState()
 }

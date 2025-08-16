@@ -1,37 +1,104 @@
 package com.sushobh.vmwatch.ui.polling
 
+import com.sushobh.libs.com.sushobh.libs.sbstate.Middleware
+import com.sushobh.libs.com.sushobh.libs.sbstate.StateStore
+import com.sushobh.libs.com.sushobh.libs.sbstate.Store
 import com.sushobh.vmwatch.FLParserApiResponse
-import com.sushobh.vmwatch.FLProperty
 import com.sushobh.vmwatch.FLSerializeFieldResponse
 import com.sushobh.vmwatch.FLViewModelId
 import com.sushobh.vmwatch.config.ConfigApi
 import com.sushobh.vmwatch.ui.PollingControlState
 import com.sushobh.vmwatch.ui.VMWatchStateApi
+import com.sushobh.vmwatch.ui.polling.state.FLPollingEvent
+import com.sushobh.vmwatch.ui.polling.state.FLPollingState
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class PollingViewModel(
     private val configApi: ConfigApi,
     private val vmWatchStateApi: VMWatchStateApi
-) {
-
-    private val client = configApi.httpClient
+) : Store<FLPollingState, FLPollingEvent> {
 
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
-    private val _vmConnectionState = MutableStateFlow<PollingVMConnectionState>(PollingVMConnectionState.NotConnected)
-    val connectionState = _vmConnectionState.asStateFlow()
-    private val _vmMainState = MutableStateFlow(PollingVMMainState(PollingVMVmListState.Loading,
-        PollingVMVmDetailsState.Waiting, PollingVMFieldValueState.Waiting))
-    val vmMainState = _vmMainState
+    private val store = StateStore(
+        initialState = FLPollingState(),
+        reducerFn = ::reducer,
+        middlewares = listOf(createPollingMiddleware(configApi, viewModelScope)),
+        coroutineScope = viewModelScope
+    )
 
+    override val state: StateFlow<FLPollingState> = store.state
+
+    override fun dispatch(event: FLPollingEvent) {
+          store.dispatch(event)
+    }
+
+    override fun reducer(
+        state: FLPollingState,
+        event: FLPollingEvent
+    ): FLPollingState {
+        return when (event) {
+            is FLPollingEvent.VmListFetched -> state.copy(
+                connectionState = PollingVMConnectionState.Connected,
+                listState = PollingVMVmListState.Success(event.vms)
+            )
+
+            is FLPollingEvent.VmListFetchFailed -> state.copy(
+                connectionState = PollingVMConnectionState.NotConnected,
+                detailsState = PollingVMVmDetailsState.Waiting,
+                fieldState = PollingVMFieldValueState.Waiting
+            )
+
+            is FLPollingEvent.FetchingVmDetails -> state.copy(
+                detailsState = PollingVMVmDetailsState.Loading
+            )
+
+            is FLPollingEvent.VmDetailsFetched -> {
+                val currentListState = state.listState
+                val newListState = if (currentListState is PollingVMVmListState.Success) {
+                    currentListState.copy(selectedId = event.selectedId)
+                } else {
+                    currentListState
+                }
+                state.copy(
+                    detailsState = PollingVMVmDetailsState.Success(event.response),
+                    listState = newListState
+                )
+            }
+
+            is FLPollingEvent.VmDetailsFetchFailed -> state.copy(
+                detailsState = PollingVMVmDetailsState.Error(event.error,),
+                fieldState = PollingVMFieldValueState.Waiting
+            )
+
+            is FLPollingEvent.FetchingFieldValue -> state.copy(
+                fieldState = PollingVMFieldValueState.Loading
+            )
+
+            is FLPollingEvent.FieldValueFetched -> state.copy(
+                fieldState = PollingVMFieldValueState.Success(event.value)
+            )
+
+            is FLPollingEvent.FieldValueFetchFailed -> state.copy(
+                fieldState = PollingVMFieldValueState.Error(event.error)
+            )
+
+            is FLPollingEvent.ViewModelClicked -> {
+                state.copy(fieldState = PollingVMFieldValueState.Waiting)
+            }
+
+            is FLPollingEvent.CloseFieldDetails -> state.copy(fieldState = PollingVMFieldValueState.Waiting)
+
+            else -> state
+        }
+    }
 
     init {
         startPolling()
@@ -41,61 +108,78 @@ class PollingViewModel(
         viewModelScope.launch {
             while (true) {
                 if (vmWatchStateApi.pollingControlState.value is PollingControlState.PollingResumed) {
-                    try {
-                        val response: List<FLViewModelId> =
-                            client.get("${configApi.getApiHost()}/getallviewmodels").body()
-                        _vmConnectionState.value = PollingVMConnectionState.Connected
-                        _vmMainState.value = _vmMainState.value.copy(listState = PollingVMVmListState.Success(response))
-                    } catch (e: Exception) {
-                        _vmConnectionState.value = PollingVMConnectionState.NotConnected
-                    }
+                    store.dispatch(FLPollingEvent.FetchVmList)
                 }
                 delay(configApi.getPollingInterval())
             }
         }
     }
 
-    fun onViewModelClicked(viewModelId: FLViewModelId) {
-        viewModelScope.launch {
-            _vmMainState.value = _vmMainState.value.copy(detailsState = PollingVMVmDetailsState.Loading)
-            try {
-                val response: FLParserApiResponse = client.post("${configApi.getApiHost()}/getpropsforviewmodel") {
-                    contentType(ContentType.Application.Json)
-                    setBody(viewModelId)
-                }.body()
-                if(response.isSuccess){
-                    val listState = vmMainState.value.listState
+    fun createPollingMiddleware(
+        configApi: ConfigApi,
+        coroutineScope: CoroutineScope
+    ): Middleware<FLPollingState, FLPollingEvent> {
+        val client = configApi.httpClient
 
-                    _vmMainState.value = _vmMainState.value.copy(detailsState = PollingVMVmDetailsState.Success(response), listState =
-                        (listState as PollingVMVmListState.Success).copy(selectedId = viewModelId))
+        return { _, event, dispatch ->
+
+            when (event) {
+                is FLPollingEvent.FetchVmList -> {
+                    coroutineScope.launch {
+                        try {
+                            val response: List<FLViewModelId> =
+                                client.get("${configApi.getApiHost()}/getallviewmodels").body()
+                            dispatch(FLPollingEvent.VmListFetched(response))
+                        } catch (e: Exception) {
+                            dispatch(FLPollingEvent.VmListFetchFailed)
+                        }
+                    }
                 }
-                else {
-                    _vmMainState.value = _vmMainState.value.copy(detailsState = PollingVMVmDetailsState.Error("Could not load properties"))
+
+                is FLPollingEvent.ViewModelClicked -> {
+                    coroutineScope.launch {
+                        dispatch(FLPollingEvent.FetchingVmDetails)
+                        try {
+                            val response: FLParserApiResponse =
+                                client.post("${configApi.getApiHost()}/getpropsforviewmodel") {
+                                    contentType(ContentType.Application.Json)
+                                    setBody(event.viewModelId)
+                                }.body()
+                            if (response.isSuccess) {
+                                dispatch(FLPollingEvent.VmDetailsFetched(response, event.viewModelId))
+                            } else {
+                                dispatch(FLPollingEvent.VmDetailsFetchFailed("Could not load properties"))
+                            }
+                        } catch (e: Exception) {
+                            dispatch(FLPollingEvent.VmDetailsFetchFailed("Could not load properties"))
+                        }
+                    }
                 }
-            } catch (e: Exception) {
-                _vmMainState.value = _vmMainState.value.copy(detailsState = PollingVMVmDetailsState.Error("Could not load properties"))
+
+                is FLPollingEvent.MoreDetailsClicked -> {
+                    coroutineScope.launch {
+                        dispatch(FLPollingEvent.FetchingFieldValue)
+                        try {
+                            val response: FLSerializeFieldResponse =
+                                client.post("${configApi.getApiHost()}/getdetailsfromprop") {
+                                    contentType(ContentType.Application.Json)
+                                    setBody(event.property.refPath)
+                                }.body()
+                            if (response.isSuccess && response.value != null) {
+                                dispatch(FLPollingEvent.FieldValueFetched(response.value))
+                            } else {
+                                dispatch(FLPollingEvent.FieldValueFetchFailed("Could not load field value"))
+                            }
+                        } catch (e: Exception) {
+                            dispatch(FLPollingEvent.FieldValueFetchFailed("Could not load field value"))
+                        }
+                    }
+                }
+
+                else -> Unit // Do nothing for other events
             }
         }
     }
 
-    fun onMoreDetailsClickedForProp(flProperty: FLProperty){
-        viewModelScope.launch {
-            _vmMainState.value = _vmMainState.value.copy(fieldState = PollingVMFieldValueState.Loading)
-            try {
-                val response: FLSerializeFieldResponse = client.post("${configApi.getApiHost()}/getdetailsfromprop") {
-                    contentType(ContentType.Application.Json)
-                    setBody(flProperty.refPath)
-                }.body()
-                if(response.isSuccess){
-                    print(response.value!!)
-                    _vmMainState.value = _vmMainState.value.copy(fieldState = PollingVMFieldValueState.Success(response.value!!))
-                }
-                else {
-                    _vmMainState.value = _vmMainState.value.copy(fieldState = PollingVMFieldValueState.Error("Could not load field value"))
-                }
-            } catch (e: Exception) {
-                _vmMainState.value = _vmMainState.value.copy(fieldState = PollingVMFieldValueState.Error("Could not load field value"))
-            }
-        }
-    }
+
 }

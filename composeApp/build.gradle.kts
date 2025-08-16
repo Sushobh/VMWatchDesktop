@@ -28,6 +28,7 @@ kotlin {
             implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
             implementation("app.cash.molecule:molecule-runtime:2.1.0")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+            implementation(project(":sbstate"))
 
         }
         commonTest.dependencies {

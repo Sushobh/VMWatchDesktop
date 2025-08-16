@@ -1,137 +1,179 @@
 package com.sushobh.vmwatch.ui.polling
 
+import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.sushobh.vmwatch.FLProperty
+import com.sushobh.vmwatch.common.SvgIconButton
+import com.sushobh.vmwatch.ui.polling.state.FLPollingEvent
+import kotlinproject.composeapp.generated.resources.Res
+import kotlinproject.composeapp.generated.resources.ic_close
 import kotlinx.coroutines.flow.map
 
 @Composable
 fun FLPollingDetailsView(pollingViewModel: PollingViewModel) {
-    val connectionState = pollingViewModel.connectionState.collectAsState()
-    val vmListState = pollingViewModel.vmMainState.map { it.listState }.collectAsState(PollingVMVmListState.Loading)
-    val vmDetailsState = pollingViewModel.vmMainState.map { it.detailsState }.collectAsState(PollingVMVmDetailsState.Loading)
+    val connectionState by pollingViewModel.state.map { it.connectionState }.collectAsState(PollingVMConnectionState.NotConnected)
+    val listState by pollingViewModel.state.map { it.listState }.collectAsState(PollingVMVmListState.Loading)
+    val detailState  by pollingViewModel.state.map { it.detailsState }.collectAsState(
+        PollingVMVmDetailsState.Waiting)
+    val fieldState  by pollingViewModel.state.map { it.fieldState }.collectAsState(
+        PollingVMFieldValueState.Waiting)
+
     Column(modifier = Modifier.fillMaxSize()) {
-        when (connectionState.value) {
+
+        when (connectionState) {
             PollingVMConnectionState.Connected -> {
-                Row {
+                Row(modifier = Modifier.fillMaxSize()) {
                     Box(modifier = Modifier.weight(1f)) {
-                        ViewModelList(vmListState.value,pollingViewModel)
+                        ViewModelList(listState, pollingViewModel)
                     }
                     Box(modifier = Modifier.weight(4f)) {
-                        ViewModelDetails(vmDetailsState.value,pollingViewModel)
+                        ViewModelDetails(detailState ,fieldState,pollingViewModel)
                     }
                 }
             }
-
             PollingVMConnectionState.NotConnected -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
                         "Not connected, please check adb connection.",
-                        style = MaterialTheme.typography.h3,
-                        color = MaterialTheme.colors.error
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
             }
         }
     }
-
 }
 
 @Composable
-fun ViewModelDetails(state : PollingVMVmDetailsState,viewModel: PollingViewModel) {
+fun ViewModelDetails(state: PollingVMVmDetailsState, fieldState: PollingVMFieldValueState, viewModel: PollingViewModel) {
 
     Card(
-        modifier = Modifier.fillMaxSize() .padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-               ,
+            modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            when(state){
-                is PollingVMVmDetailsState.Error -> {
-                    Text("Error")
+            if(fieldState is PollingVMFieldValueState.Success){
+                val vmName = if(state is PollingVMVmDetailsState.Success){
+                    state.vmDetails.viewmodelName
                 }
-                PollingVMVmDetailsState.Loading -> {
+                else {
+                    ""
+                }
+                FLCFieldDetails(fieldState.fieldDetails,vmName,{
+                    viewModel.dispatch(FLPollingEvent.CloseFieldDetails)
+                })
+                return@Box
+            }
+            when(state) {
+                PollingVMVmDetailsState.Loading  -> {
                     Text("Loading....")
+                }
+                is PollingVMVmDetailsState.Error -> {
+                    Text(state.message)
                 }
                 is PollingVMVmDetailsState.Success -> {
 
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         item {
-                            Text(modifier = Modifier.fillMaxWidth().padding(10.dp), text = state.vmDetails.viewmodelName)
+                            Text(
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                text = state.vmDetails.viewmodelName,
+                                style = MaterialTheme.typography.titleLarge
+                            )
                         }
-
                         items(state.vmDetails.items) { property ->
                             PropertyRow(property, onClick = {
-                                 viewModel.onMoreDetailsClickedForProp(it)
+                                viewModel.dispatch(FLPollingEvent.MoreDetailsClicked(it))
                             })
-                            Divider(color = androidx.compose.material3.MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+                            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
                         }
                     }
                 }
-                PollingVMVmDetailsState.Waiting -> {
-                    Text("Please select a viewmodel")
+                else -> {
+                    Text("Please select a viewmodel from the list.")
                 }
             }
         }
+    }
+}
+@Composable
+fun FLCFieldDetails(field: FLProperty, vmName: String,onClick: () -> Unit) {
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        // Top-right close button
+        Box(modifier = Modifier.fillMaxWidth()) {
+            SvgIconButton(
+                onClick = { onClick() },
+                path = Res.drawable.ic_close,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
+            )
+        }
+        Text("${vmName} -> ${field.name}", modifier = Modifier,style = MaterialTheme.typography.headlineLarge)
+        Spacer(Modifier.height(30.dp))
+        // Text takes all remaining space
+        Text(
+            style = MaterialTheme.typography.bodyMedium,
+            text = field.fieldValue.orEmpty(),
+            modifier = Modifier
+                .fillMaxSize()
 
+        )
     }
 }
 
-
 @Composable
-fun ViewModelList(listState: PollingVMVmListState,viewModel: PollingViewModel) {
-    Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
-        when(listState){
-            is PollingVMVmListState.Error -> {
-                Text("Something's wrong")
-            }
-            PollingVMVmListState.Loading -> {
-                  Text("Loading")
-            }
-            is PollingVMVmListState.Success -> {
-                LazyColumn(modifier = Modifier.background(androidx.compose.material3.MaterialTheme.colorScheme.surface).fillMaxSize()) {
+fun ViewModelList(state: PollingVMVmListState,viewModel: PollingViewModel) {
 
-                    items(listState.vmList) { vm ->
+
+    Column(
+        modifier = Modifier.fillMaxHeight().background(MaterialTheme.colorScheme.surface),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        when(state) {
+            PollingVMVmListState.Loading  -> {
+                Text("Loading", modifier = Modifier.padding(16.dp))
+            }
+            is PollingVMVmListState.Error -> {
+                Text(state.message, modifier = Modifier.padding(16.dp), color = MaterialTheme.colorScheme.error)
+            }
+            is PollingVMVmListState.Success ->
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(state.vmList, key = { it.code }) { vm ->
                         ViewModelItem(
                             name = vm.name,
-                            onClick = { viewModel.onViewModelClicked(vm) },
-                            isSelected = vm == listState.selectedId
+                            onClick = {
+                                viewModel.dispatch(FLPollingEvent.ViewModelClicked(vm))
+                            },
+                            isSelected = vm == state.selectedId
                         )
                     }
                 }
-            }
         }
     }
-
-
 }
 
 @Composable
@@ -141,40 +183,34 @@ fun ViewModelItem(name: String, isSelected: Boolean, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .background(if (isSelected) androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
+            .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
             .padding(horizontal = 16.dp, vertical = 12.dp),
-        color = if (isSelected) androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer else androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+        color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
     )
 }
 
-const val MAX_DISPLAYABLE_LENGTH = 100
-
-
-
 @Composable
-fun PropertyRow(property: FLProperty, onClick: (property : FLProperty) -> Unit) {
+fun PropertyRow(property: FLProperty, onClick: (property: FLProperty) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp).clickable(true) {
-                onClick(property)
-            },
+            .clickable { onClick(property) }
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Using onSurface for primary text, consistent with ViewModelItem
         Text(
             text = property.name,
             modifier = Modifier.weight(1f),
-            style = androidx.compose.material3.MaterialTheme.typography.titleSmall,
-            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         Text(
             text = property.value ?: "null",
             modifier = Modifier.weight(2f),
-            style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
-            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
