@@ -56,7 +56,7 @@ interface FragLensApi {
 }
 
 @Serializable
-data class FLViewModelId(val code : Int,val name : String)
+data class FLViewModelId(val code : Int,val name : String,val ownerName : String,val ownerCode : Int,val ownerType : String)
 
 @Serializable
 data class FLParserApiResponse(val isSuccess : Boolean = false,val items : List<FLProperty> = emptyList(),val viewmodelName : String)
