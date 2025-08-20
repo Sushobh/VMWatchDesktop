@@ -37,4 +37,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: compose-artifacts
-          path: composeApp/build/compose/**
+          path: composeApp/build/compose/binaries/**
