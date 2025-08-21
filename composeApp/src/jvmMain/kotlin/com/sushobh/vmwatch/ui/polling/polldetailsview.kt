@@ -202,7 +202,6 @@ fun FLCViewModelOwner(item : FLCListViewItem.FLCListViewModelOwner, isToggledOn 
         text = item.name,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
             .background(if (isToggledOn) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         color = if (isToggledOn) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,

@@ -39,14 +39,13 @@ class PollingViewModel(
     )
 
 
-
     override val state: StateFlow<FLPollingState> = store.state
 
-     val listItems  = state.map { it.listState }.filterIsInstance<PollingVMVmListState.Success>()
+    val listItems = state.map { it.listState }.filterIsInstance<PollingVMVmListState.Success>()
         .map { createListResponse(it.vmList) }
 
     override fun dispatch(event: FLPollingEvent) {
-          store.dispatch(event)
+        store.dispatch(event)
     }
 
     override fun reducer(
@@ -56,7 +55,12 @@ class PollingViewModel(
         return when (event) {
             is FLPollingEvent.VmListFetched -> state.copy(
                 connectionState = PollingVMConnectionState.Connected,
-                listState = PollingVMVmListState.Success(event.vms)
+                listState = PollingVMVmListState.Success(
+                    event.vms,
+                    selectedId = if (state.listState is PollingVMVmListState.Success) {
+                        state.listState.selectedId
+                    } else null
+                )
             )
 
             is FLPollingEvent.VmListFetchFailed -> state.copy(
@@ -70,20 +74,11 @@ class PollingViewModel(
             )
 
             is FLPollingEvent.VmDetailsFetched -> {
-                val currentListState = state.listState
-                val newListState = if (currentListState is PollingVMVmListState.Success) {
-                    currentListState.copy(selectedId = event.selectedId)
-                } else {
-                    currentListState
-                }
-                state.copy(
-                    detailsState = PollingVMVmDetailsState.Success(event.response),
-                    listState = newListState
-                )
+                state.copy(detailsState = PollingVMVmDetailsState.Success(event.response),)
             }
 
             is FLPollingEvent.VmDetailsFetchFailed -> state.copy(
-                detailsState = PollingVMVmDetailsState.Error(event.error,),
+                detailsState = PollingVMVmDetailsState.Error(event.error),
                 fieldState = PollingVMFieldValueState.Waiting
             )
 
@@ -100,7 +95,13 @@ class PollingViewModel(
             )
 
             is FLPollingEvent.ViewModelClicked -> {
-                state.copy(fieldState = PollingVMFieldValueState.Waiting)
+                if(state.listState is PollingVMVmListState.Success){
+                    state.copy(fieldState = PollingVMFieldValueState.Waiting, listState = state.listState.copy(selectedId = event.viewModelId))
+                }
+                else {
+                    state.copy(fieldState = PollingVMFieldValueState.Waiting)
+                }
+
             }
 
             is FLPollingEvent.CloseFieldDetails -> state.copy(fieldState = PollingVMFieldValueState.Waiting)
@@ -124,21 +125,20 @@ class PollingViewModel(
         }
     }
 
-    private fun createListResponse(list : List<FLViewModelId>) : List<FLCListViewItem> {
-        val owners : Map<Int, List<FLViewModelId>> = list.groupBy { it.ownerCode }
-        val viewList : ArrayList<FLCListViewItem> = arrayListOf<FLCListViewItem>()
+    private fun createListResponse(list: List<FLViewModelId>): List<FLCListViewItem> {
+        val owners: Map<Int, List<FLViewModelId>> = list.groupBy { it.ownerCode }
+        val viewList: ArrayList<FLCListViewItem> = arrayListOf<FLCListViewItem>()
         owners.forEach {
-            val values = it.value
-            if(values.isEmpty()){
+            val values = it.value.filter { it.name != "SavedStateHandlesVM" }
+            if (values.isEmpty()) {
                 return@forEach
-            }
-            else {
+            } else {
                 val anyItem = values.first()
                 val ownerName = anyItem.ownerName
                 val ownerCode = anyItem.ownerCode
                 viewList.add(FLCListViewItem.FLCListViewModelOwner(name = ownerName, code = ownerCode.toString()))
                 values.forEach {
-                    viewList.add(FLCListViewItem.FLCListViewModel(it,"${ownerCode}/${it.code}"))
+                    viewList.add(FLCListViewItem.FLCListViewModel(it, "${ownerCode}/${it.code}"))
                 }
             }
 
