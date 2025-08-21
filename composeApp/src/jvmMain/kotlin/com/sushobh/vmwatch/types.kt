@@ -69,5 +69,11 @@ data class FLReferencePath(val viewModelCode : Int,val fieldCode : Int) {
         if(index == 1) return fieldCode
         return -1
     }
+}
 
+
+
+sealed class FLCListViewItem(open val code : String) {
+    data class FLCListViewModel(val viewModelId : FLViewModelId, override val code : String) : FLCListViewItem(code)
+    data class FLCListViewModelOwner(val isSelected : Boolean = false, val name : String,override val code : String) : FLCListViewItem(code)
 }

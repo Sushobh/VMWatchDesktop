@@ -3,6 +3,7 @@ package com.sushobh.vmwatch.ui.polling
 import com.sushobh.libs.com.sushobh.libs.sbstate.Middleware
 import com.sushobh.libs.com.sushobh.libs.sbstate.StateStore
 import com.sushobh.libs.com.sushobh.libs.sbstate.Store
+import com.sushobh.vmwatch.FLCListViewItem
 import com.sushobh.vmwatch.FLParserApiResponse
 import com.sushobh.vmwatch.FLSerializeFieldResponse
 import com.sushobh.vmwatch.FLViewModelId
@@ -18,6 +19,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class PollingViewModel(
@@ -27,6 +30,7 @@ class PollingViewModel(
 
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
+
     private val store = StateStore(
         initialState = FLPollingState(),
         reducerFn = ::reducer,
@@ -34,7 +38,12 @@ class PollingViewModel(
         coroutineScope = viewModelScope
     )
 
+
+
     override val state: StateFlow<FLPollingState> = store.state
+
+     val listItems  = state.map { it.listState }.filterIsInstance<PollingVMVmListState.Success>()
+        .map { createListResponse(it.vmList) }
 
     override fun dispatch(event: FLPollingEvent) {
           store.dispatch(event)
@@ -113,6 +122,28 @@ class PollingViewModel(
                 delay(configApi.getPollingInterval())
             }
         }
+    }
+
+    private fun createListResponse(list : List<FLViewModelId>) : List<FLCListViewItem> {
+        val owners : Map<Int, List<FLViewModelId>> = list.groupBy { it.ownerCode }
+        val viewList : ArrayList<FLCListViewItem> = arrayListOf<FLCListViewItem>()
+        owners.forEach {
+            val values = it.value
+            if(values.isEmpty()){
+                return@forEach
+            }
+            else {
+                val anyItem = values.first()
+                val ownerName = anyItem.ownerName
+                val ownerCode = anyItem.ownerCode
+                viewList.add(FLCListViewItem.FLCListViewModelOwner(name = ownerName, code = ownerCode.toString()))
+                values.forEach {
+                    viewList.add(FLCListViewItem.FLCListViewModel(it,"${ownerCode}/${it.code}"))
+                }
+            }
+
+        }
+        return viewList
     }
 
     fun createPollingMiddleware(

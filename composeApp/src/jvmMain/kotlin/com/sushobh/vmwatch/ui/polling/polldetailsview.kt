@@ -1,6 +1,5 @@
 package com.sushobh.vmwatch.ui.polling
 
-import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,10 +13,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.sushobh.vmwatch.FLCListViewItem
 import com.sushobh.vmwatch.FLProperty
 import com.sushobh.vmwatch.common.SvgIconButton
 import com.sushobh.vmwatch.ui.polling.state.FLPollingEvent
@@ -147,7 +148,10 @@ fun FLCFieldDetails(field: FLProperty, vmName: String,onClick: () -> Unit) {
 @Composable
 fun ViewModelList(state: PollingVMVmListState,viewModel: PollingViewModel) {
 
-
+    val items = viewModel.listItems.collectAsState(emptyList())
+    var toggledOwnerItems : HashSet<String> = remember {
+        hashSetOf()
+    }
     Column(
         modifier = Modifier.fillMaxHeight().background(MaterialTheme.colorScheme.surface),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -162,14 +166,30 @@ fun ViewModelList(state: PollingVMVmListState,viewModel: PollingViewModel) {
             }
             is PollingVMVmListState.Success ->
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(state.vmList, key = { it.code }) { vm ->
-                        ViewModelItem(
-                            name = vm.name,
-                            onClick = {
-                                viewModel.dispatch(FLPollingEvent.ViewModelClicked(vm))
-                            },
-                            isSelected = vm == state.selectedId
-                        )
+                    val listItems = items.value
+                    items(listItems, key = { it.code }) { vm ->
+                        when(vm){
+                            is FLCListViewItem.FLCListViewModelOwner -> {
+                                FLCViewModelOwner(vm,toggledOwnerItems.contains(vm.code), {
+                                      if(toggledOwnerItems.contains(vm.code)){
+                                          toggledOwnerItems = toggledOwnerItems.toHashSet().also { it.remove(vm.code) }
+                                      }
+                                      else {
+                                          toggledOwnerItems = toggledOwnerItems.toHashSet().also { it.add(vm.code) }
+                                      }
+                                })
+                            }
+                            is FLCListViewItem.FLCListViewModel -> {
+                                FLCViewModelItem(
+                                    name = vm.viewModelId.name,
+                                    onClick = {
+                                        viewModel.dispatch(FLPollingEvent.ViewModelClicked(vm.viewModelId))
+                                    },
+                                    isSelected = vm.viewModelId.code == state.selectedId?.code
+                                )
+                            }
+                        }
+
                     }
                 }
         }
@@ -177,15 +197,31 @@ fun ViewModelList(state: PollingVMVmListState,viewModel: PollingViewModel) {
 }
 
 @Composable
-fun ViewModelItem(name: String, isSelected: Boolean, onClick: () -> Unit) {
+fun FLCViewModelOwner(item : FLCListViewItem.FLCListViewModelOwner, isToggledOn : Boolean, onClick: () -> Unit) {
+    Text(
+        text = item.name,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .background(if (isToggledOn) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        color = if (isToggledOn) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+        style = MaterialTheme.typography.headlineSmall
+    )
+}
+
+
+@Composable
+fun FLCViewModelItem(name: String, isSelected: Boolean, onClick: () -> Unit) {
     Text(
         text = name,
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+            .background(if (isSelected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent)
+            .padding(start = 24.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
+        color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
+        style = MaterialTheme.typography.labelSmall
     )
 }
 
