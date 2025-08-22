@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.sushobh.vmwatch.FLCListViewItem
 import com.sushobh.vmwatch.FLProperty
 import com.sushobh.vmwatch.common.SvgIconButton
+import com.sushobh.vmwatch.ui.json.PrettyJsonView
 import com.sushobh.vmwatch.ui.polling.state.FLPollingEvent
 import kotlinproject.composeapp.generated.resources.Res
 import kotlinproject.composeapp.generated.resources.ic_close
@@ -134,14 +135,8 @@ fun FLCFieldDetails(field: FLProperty, vmName: String,onClick: () -> Unit) {
         }
         Text("${vmName} -> ${field.name}", modifier = Modifier,style = MaterialTheme.typography.headlineLarge)
         Spacer(Modifier.height(30.dp))
-        // Text takes all remaining space
-        Text(
-            style = MaterialTheme.typography.bodyMedium,
-            text = field.fieldValue.orEmpty(),
-            modifier = Modifier
-                .fillMaxSize()
 
-        )
+        PrettyJsonView(field.fieldValue.orEmpty())
     }
 }
 
@@ -249,3 +244,4 @@ fun PropertyRow(property: FLProperty, onClick: (property: FLProperty) -> Unit) {
         )
     }
 }
+

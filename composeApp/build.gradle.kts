@@ -29,7 +29,7 @@ kotlin {
             implementation("app.cash.molecule:molecule-runtime:2.1.0")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
             implementation(project(":sbstate"))
-
+            implementation("com.google.code.gson:gson:2.13.1")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
