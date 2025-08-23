@@ -76,18 +76,7 @@ fun ViewModelDetails(state: PollingVMVmDetailsState, fieldState: PollingVMFieldV
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            if(fieldState is PollingVMFieldValueState.Success){
-                val vmName = if(state is PollingVMVmDetailsState.Success){
-                    state.vmDetails.viewmodelName
-                }
-                else {
-                    ""
-                }
-                FLCFieldDetails(fieldState.fieldDetails,vmName,{
-                    viewModel.dispatch(FLPollingEvent.CloseFieldDetails)
-                })
-                return@Box
-            }
+
             when(state) {
                 PollingVMVmDetailsState.Loading  -> {
                     Text("Loading....")
@@ -96,21 +85,37 @@ fun ViewModelDetails(state: PollingVMVmDetailsState, fieldState: PollingVMFieldV
                     Text(state.message)
                 }
                 is PollingVMVmDetailsState.Success -> {
+                    Row(modifier = Modifier.fillMaxSize()){
+                        LazyColumn(modifier = Modifier.fillMaxHeight().fillMaxWidth(0.65f)) {
+                            item {
+                                Text(
+                                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                    text = state.vmDetails.viewmodelName,
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                            }
+                            items(state.vmDetails.items) { property ->
+                                PropertyRow(property, onClick = {
+                                    viewModel.dispatch(FLPollingEvent.MoreDetailsClicked(it))
+                                })
+                                Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+                            }
+                        }
 
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        item {
-                            Text(
-                                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                                text = state.vmDetails.viewmodelName,
-                                style = MaterialTheme.typography.titleLarge
-                            )
+                        if(fieldState is PollingVMFieldValueState.Success){
+                            val vmName = if(state is PollingVMVmDetailsState.Success){
+                                state.vmDetails.viewmodelName
+                            }
+                            else {
+                                ""
+                            }
+                            Column(modifier = Modifier.fillMaxHeight()) {
+                                FLCFieldDetails(fieldState.fieldDetails,vmName,{
+                                    viewModel.dispatch(FLPollingEvent.CloseFieldDetails)
+                                })
+                            }
                         }
-                        items(state.vmDetails.items) { property ->
-                            PropertyRow(property, onClick = {
-                                viewModel.dispatch(FLPollingEvent.MoreDetailsClicked(it))
-                            })
-                            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
-                        }
+
                     }
                 }
                 else -> {
