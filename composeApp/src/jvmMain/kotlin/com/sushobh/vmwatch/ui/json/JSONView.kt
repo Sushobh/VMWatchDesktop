@@ -37,10 +37,12 @@ fun PrettyJsonView(json: String) {
             .fillMaxWidth()
     ) {
         BasicText(
+
             text = AnnotatedString(prettyJson),
             style = TextStyle(
                 fontFamily = FontFamily.Monospace,
-                fontSize = MaterialTheme.typography.bodyMedium.fontSize
+                fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                color =  MaterialTheme.colorScheme.onSurface,
             )
         )
     }
